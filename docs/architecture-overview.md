@@ -5,7 +5,7 @@
 | **Owner** | Project owner |
 | **Last reviewed** | 2026-10-11 |
 | **Review cadence** | On every change that moves a boundary |
-| **Status** | Backend and data confirmed on 2026-10-11. Frontend deferred. |
+| **Status** | Backend, data and frontend confirmed on 2026-10-11. |
 
 This document describes what ConArt is and how it is shaped. It is written for a developer who did not build it, or for the owner returning after months away.
 
@@ -183,6 +183,10 @@ Confirmed by the owner on 2026-10-11. No ADR files exist yet; this table is the 
 | D6 | Backups | Litestream to a free S3-compatible bucket | Replica within seconds, free tier |
 | D7 | Deploy | Manual `git pull` and build on the Pi, then restart | Simple. A self-hosted CI runner on a public repository can run code from untrusted pull requests |
 | D8 | Build location | On the Pi | The native SQLite module must match the Pi's CPU |
+| D9 | Interface | Phone-first responsive website, installable as a PWA | Used at stands on phones. Home-screen icon. Offline support can be added later without a rewrite |
+| D10 | Data loading | TanStack Query | Retries and caching for weak Wi-Fi. Listed in the README |
+| D11 | Components | Tailwind CSS with shadcn/ui | Free, accessible components, faster than building from scratch |
+| D12 | Language | English only for now | Simplest. Text can move to translation files later |
 
 ### 11. Known problems and direction
 
@@ -198,9 +202,13 @@ Confirmed by the owner on 2026-10-11. No ADR files exist yet; this table is the 
 
 - **Argon2id:** a password-hashing algorithm designed to resist brute-force attacks.
 - **Litestream:** an open-source tool that streams SQLite changes to cloud storage.
+- **PWA (progressive web app):** a website that can be installed on a phone and opened like an app.
 - **RPO (recovery point objective):** the most recent data you could lose in a failure.
 - **Route handler:** a Next.js function that answers an HTTP request.
+- **Service worker:** a script the browser runs in the background, able to cache app files.
+- **shadcn/ui:** free, copy-in UI components built on Tailwind CSS.
 - **SQLite:** a database stored in a single file, with no server process.
+- **TanStack Query:** a library that loads, caches and retries server data in the browser.
 - **Tunnel:** a service that gives a private machine a public HTTPS address.
 - **WAL (write-ahead log):** a SQLite mode that lets Litestream read changes safely while the app writes.
 
@@ -208,10 +216,82 @@ Confirmed by the owner on 2026-10-11. No ADR files exist yet; this table is the 
 
 ## Part 2: Frontend
 
-Deferred. Not designed in detail yet.
+### 13. Purpose and scope
 
-- **Stack:** Next.js pages, Tailwind CSS for styling, React Query for server state (from the README).
-- **Boundary:** talks to the backend only through `/api` routes on the same origin, so no CORS setup is needed.
-- **Planned screens:** sign in, items, sell, sales log.
-- **Open question:** React Query may be more than a few endpoints need. Decide when the frontend starts; plain `fetch` may be enough.
-.
+The browser app artists use at a stand. It lets them sign in, manage items and events, record sales, and review the sales log.
+
+Inside the boundary: pages, UI components, client-side data loading and saving, and the installable app settings (PWA).
+
+Outside the boundary: the API and data rules (Part 1), the tunnel, and the artist's own phone or laptop.
+
+### 14. Quality attributes
+
+Ranked. When two conflict, the higher one wins.
+
+| Rank | Attribute | Target | Why it matters | Measured by |
+|---|---|---|---|---|
+| 1 | Sale integrity | A sale shows as recorded only after the server confirms it. A failed sale is never lost or duplicated. | Lost or double sales cost money | Throttled-network test in browser devtools before each event |
+| 2 | Speed at the stand | Sell screen ready within 2 seconds on a mid-range phone on 4G. A sale takes 3 taps or fewer. | Queues form at busy stands | Timed run on a phone before each event |
+| 3 | Clarity | Each screen has one main action. Error messages say what to do next. | Used in a hurry, sometimes by helpers | Walk-through with a non-technical helper before each event |
+| 4 | Accessibility | Every control works with a keyboard and is read by a screen reader. Contrast meets WCAG AA. | Inclusive by default; shadcn/ui helps | Lighthouse accessibility score of 90 or more |
+| 5 | Cost | 0 EUR. Free libraries only. | Free personal project | Monthly bill |
+
+Trade-off: a sale shows as recorded only after the server confirms it. On slow Wi-Fi this adds a short wait. Integrity beats speed.
+
+### 15. Constraints
+
+- **Devices:** phones (iOS Safari and Android Chrome) and laptops. Layout works from 360 px wide.
+- **Network:** stand Wi-Fi can drop. The app must never silently lose an entry.
+- **Hosting:** served by the same Next.js app on the Pi. No separate frontend host.
+- **Cost:** free libraries and services only.
+- **Language:** English only for now.
+- **Team:** one maintainer. Prefer few dependencies and standard tools.
+
+### 16. Screens and flows
+
+| Screen | Purpose | Main action | Needs sign-in |
+|---|---|---|---|
+| Sign in | Email and password | Sign in | No |
+| Sell | Record sales quickly | Tap an item. Quantity defaults to 1 | Yes |
+| Items | Manage products | Add or edit name, price and stock | Yes |
+| Events | Manage conventions | Add an event and set it as active | Yes |
+| Sales log | Review sales and totals | Void a sale with a reason | Yes |
+
+Sell screen rules:
+- The active event is shown at the top. The app remembers the last event used on this device.
+- Tapping an item sends the sale at once. The item shows as pending until the server confirms it.
+- A confirmed sale shows a short message with an Undo button for 10 seconds. Undo calls the void action from Part 1, so the record is kept.
+
+**When it fails.** A pending sale stays on screen with a Retry button. Retry reuses the same `client_sale_id`, so it cannot duplicate the sale.
+
+**When the session expires.** A `401` response sends the artist to sign-in and back to the same page afterwards. Pending sales stay on screen and are retried after sign-in.
+
+### 17. Structure and data access
+
+- **Pages:** one route per screen (sign in, sell, items, events, sales log) in the Next.js app.
+- **Data access:** every request goes to `/api` routes on the same origin with the session cookie. The session token is in an HTTP-only cookie, so page scripts cannot read it.
+- **Server data:** TanStack Query holds loaded data, retries failed reads and writes, and provides loading and error states.
+- **Money:** the API sends integer cents. The UI formats them for display only. No arithmetic on floats.
+- **Validation:** the browser checks forms for quick feedback. The backend validates again and is the final check.
+- **Components:** shadcn/ui components styled with Tailwind CSS. Custom components only where shadcn/ui has none.
+- **Deploy:** built and served with the backend as one app. See section 6, Deploy.
+
+### 18. Cross-cutting concerns
+
+- **Errors.** Every failed request shows a plain message and a Retry button. No silent failures.
+- **Double taps.** Item buttons are disabled while a sale is pending. Retries reuse the same `client_sale_id`.
+- **Touch and text.** Touch targets are at least 44 px tall. Input text is at least 16 px, so iOS does not zoom in on focus.
+- **Installable app (PWA).** A web app manifest gives the name, icon and theme colour. The service worker caches only the app's own files (HTML, CSS, JavaScript, icons). It never caches API responses or sales data.
+- **Updates.** A new deploy is picked up on the next visit. If an old version still shows, reload once.
+- **Secrets.** Only values safe for every visitor may use the `NEXT_PUBLIC_` prefix, because page code is public.
+- **Privacy.** No third-party analytics or tracking scripts.
+- **Logging.** Unexpected browser errors go to the console. Server logs are in the journal (section 9).
+
+### 19. Known problems and direction
+
+| Problem | Impact today | Intended direction | Owner |
+|---|---|---|---|
+| No automated UI tests | A broken sale flow could reach a stand | Add free Playwright tests for sign-in and recording a sale | Owner |
+| No offline sales | A dropped connection blocks sales | Add a local queue later, using `client_sale_id`. The PWA setup allows this without a rewrite | Owner |
+| Install not tested on iPhone | Home-screen install steps may differ | Test on an iPhone and an Android phone before the first event | Owner |
+| Currency not chosen | Prices show without a currency sign | Choose one currency during setup and use it on all screens | Owner |
