@@ -2,11 +2,14 @@
 name: Enforce PR to main from dev
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
     branches:
       - main
+      - dev
 jobs:
   enforce-dev-source:
     name: Only dev may merge into main
+    if: ${{ github.event.pull_request.base.ref == 'main' }}
     runs-on: ubuntu-latest
     steps:
       - name: Verify source branch is dev from this repository

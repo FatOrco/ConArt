@@ -9,6 +9,7 @@ All notable changes to this project are documented here.
 ### Added
 
 - CI to block PR into main that aren't from dev branch
+- CI to perform security checks on code to detect vulnerabilities and secret exposures using Trivy and Gitleaks.
 
 ### Changed
 None
