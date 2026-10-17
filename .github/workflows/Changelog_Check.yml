@@ -1,0 +1,36 @@
+name: Changelog Check
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  changelog-updated:
+    name: Require CHANGELOG.md update
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check CHANGELOG.md changed in this pull request
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed=$(git diff --name-only "origin/$BASE_REF...$HEAD_SHA" -- CHANGELOG.md)
+          if [ -z "$changed" ]; then
+            echo "::error file=CHANGELOG.md::This pull request to main must update CHANGELOG.md."
+            exit 1
+          fi
+          echo "CHANGELOG.md is updated."

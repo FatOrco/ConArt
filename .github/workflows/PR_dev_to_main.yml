@@ -1,0 +1,31 @@
+# Github action to enforce pull request to main only from the dev branch.
+name: Enforce PR to main from dev
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - main
+      - dev
+jobs:
+  enforce-dev-source:
+    name: Only dev may merge into main
+    if: ${{ github.event.pull_request.base.ref == 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify source branch is dev from this repository
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPO: ${{ github.repository }}
+        run: |
+          if [ "$HEAD_REPO" != "$BASE_REPO" ]; then
+            echo "::error::Pull requests to main must come from this repository (found '$HEAD_REPO')."
+            exit 1
+          fi
+          case "$HEAD_REF" in
+            dev|hotfix/*) ;;
+            *)
+              echo "::error::Pull requests to main must come from dev or hotfix/* (found '$HEAD_REF')."
+              exit 1
+              ;;
+          esac
