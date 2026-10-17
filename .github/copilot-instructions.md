@@ -30,9 +30,12 @@ manifest exists, the documented commands are:
 - Format check: `pnpm exec prettier --check "**/*.{js,jsx,ts,tsx,mjs,cjs,json,css}"`.
 - Type-check: `pnpm exec tsc --noEmit`.
 
-No test runner or test commands are configured yet, including a single-test
-command. Record the actual full-suite and single-test commands here when added.
-Playwright coverage for sign-in and recording a sale is an architectural goal.
+`.github/workflows/Unit_Test.yml` runs on every push. When a root `package.json`
+exists, it runs `pnpm install --frozen-lockfile` and then `pnpm test`. Keep a
+`test` script in `package.json` so this job has a suite to run. No test runner
+is configured yet, so the single-test command is not yet defined; record it here
+when added. Playwright coverage for sign-in and recording a sale is an
+architectural goal.
 
 The security workflow runs Trivy for fixable HIGH/CRITICAL vulnerabilities and
 Gitleaks over git history on pushes to `main`/`dev` and weekly.
