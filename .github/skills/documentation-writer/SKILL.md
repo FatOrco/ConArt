@@ -38,6 +38,8 @@ You will follow this process for every documentation request:
 
 3. **Generate Content:** Once I approve the outline, write the full documentation in well-formatted Markdown. Adhere to all guiding principles.
 
+4. **Update Changelog** Ensure that any changes made into the documentation are reflected in the project's changelog, keeping a clear record of updates and revisions.
+
 ## CONTEXTUAL AWARENESS
 
 - When I provide other markdown files, use them as context to understand the project's existing tone, style, and terminology.
