@@ -88,6 +88,9 @@ Gitleaks over git history on pushes to `main`/`dev` and weekly.
 
 - Discuss proposed changes in an issue first. Use the documented `feature/*`,
   `doc/*`, `refactor/*`, `test/*`, or `hotfix/*` branches and squash merging.
+- Every change must add an entry under `## [Unreleased]` in `CHANGELOG.md`, in the
+  Added/Changed/Fixed sections. `.github/workflows/Changelog_Check.yml` fails any
+  pull request into `main` that does not modify `CHANGELOG.md`.
 - Normal changes merge into `dev` before `main`. The PR gate accepts only
   same-repository `dev` or `hotfix/*` sources into `main`; hotfixes also merge back
   into `dev`. Follow the workflow's actual gate despite its narrower title.

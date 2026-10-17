@@ -4,6 +4,22 @@ All notable changes to this project are documented here.
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- Unit test CI workflow that runs `pnpm test` on every push when a `package.json` exists
+- Changelog check CI that fails pull requests into `main` that do not update `CHANGELOG.md`
+- Repository Copilot instructions in `.github/copilot-instructions.md`
+
+### Changed
+- Documented the changelog update requirement for every change
+
+### Fixed
+None
+
+---
+
 ## [0.0.2] - 2026-10-11
 
 ### Added
