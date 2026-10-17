@@ -95,6 +95,7 @@ Gitleaks over git history on pushes to `main`/`dev` and weekly.
   must disclose the tool, the assisted parts, and any human review/modifications.
 - Report unpatched vulnerabilities privately through GitHub's vulnerability
   reporting form, following `docs/SECURITY.md`, not in public issues or PRs.
+- Update the changelog for any changes made, ensuring a clear record of updates and revisions.
 
 ## Limitations
 
