@@ -21,7 +21,8 @@ All notable changes to this project are documented here.
 - `vitest.config.mts` limiting Vitest to `tests/unit/**/*.test.ts`
 
 ### Changed
-- Moved unit tests from next to source files to `tests/unit/` (`lib/money.test.ts` is now `tests/unit/money.test.ts`); Playwright tests go in `tests/e2e/`
+- README tech stack, Node.js 20.9+ prerequisite, and command reference updated for the Next.js 16 scaffold
+- Moved unit tests from beside source files to `tests/unit/` (`lib/money.test.ts` is now `tests/unit/money.test.ts`); Playwright tests go in `tests/e2e/`
 - Documented the changelog update requirement for every change
 - `.gitignore` ignores Next.js build output, generated `next-env.d.ts`, coverage reports, and `.DS_Store`
 
