@@ -1,3 +1,4 @@
+
 <hr>
 </div>
 
@@ -28,9 +29,13 @@ ConArt is a sales tracker for artists at conventions. It shows the items on sale
 
 ## 👩‍💻 Tech Stack
 
-- **Next.js**: A React framework for building server-side rendering and static web applications.
-- **React Query**: Data-fetching library for managing server-state in React applications.
-- **Tailwind CSS**: A utility-first CSS framework for styling.
+- **Next.js 16** (App Router): React framework for the pages and `/api` route handlers.
+- **TypeScript**: Typed JavaScript for the whole codebase.
+- **React 19**: UI library.
+- **TanStack Query**: Data-fetching library for managing server state in the browser (planned).
+- **Tailwind CSS 4**: A utility-first CSS framework for styling.
+- **Drizzle ORM and SQLite** (planned): Database access and storage.
+- **Vitest**: Unit testing. **ESLint** and **Prettier**: Linting and formatting.
 
 
 ## 📦 Getting Started
@@ -38,7 +43,7 @@ ConArt is a sales tracker for artists at conventions. It shows the items on sale
 
 ### 🚀 Prerequisites
 
-- [Node.js](https://nodejs.org/) (LTS)
+- [Node.js](https://nodejs.org/) 20.9 or later (Node.js LTS recommended)
 - [pnpm](https://pnpm.io/)
 
 
@@ -63,6 +68,19 @@ pnpm dev
 ```
 
 Then open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 🧪 Other Commands
+
+| Command | Purpose |
+|---|---|
+| `pnpm build` | Production build |
+| `pnpm start` | Serve the production build |
+| `pnpm lint` | Run ESLint |
+| `pnpm test` | Run unit tests (Vitest, in `tests/unit/`) |
+| `pnpm exec tsc --noEmit` | Type-check |
+| `pnpm exec prettier --check .` | Check formatting |
+
+Production builds run on the Raspberry Pi because the SQLite driver must match its ARM64 CPU.
 
 
 ### 📃 API Documentation

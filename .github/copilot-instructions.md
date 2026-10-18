@@ -5,10 +5,10 @@
 ConArt is a phone-first sales tracker for artists at conventions: manage items
 and events, record sales, and review the sales log.
 
-This checkout contains documentation and GitHub Actions workflows; the app has
-not been scaffolded. Treat the architecture below as the agreed design, not
-existing implementation. Read `docs/architecture-overview.md` before introducing
-application code, and update it whenever a change moves an architectural boundary.
+This checkout contains the Next.js application scaffold (App Router, TypeScript,
+Tailwind CSS, ESLint) and the documentation. Feature code is not built yet. Treat the
+architecture below as the agreed design, and read `docs/architecture-overview.md` before introducing
+application code. Update it whenever a change moves an architectural boundary.
 `README.md` describes the intended setup; `docs/CONTRIBUTING.md`,
 `docs/branching-strategy.md`, and `docs/SECURITY.md` govern contributions.
 
@@ -31,11 +31,11 @@ manifest exists, the documented commands are:
 - Type-check: `pnpm exec tsc --noEmit`.
 
 `.github/workflows/Unit_Test.yml` runs on every push. When a root `package.json`
-exists, it runs `pnpm install --frozen-lockfile` and then `pnpm test`. Keep a
-`test` script in `package.json` so this job has a suite to run. No test runner
-is configured yet, so the single-test command is not yet defined; record it here
-when added. Playwright coverage for sign-in and recording a sale is an
-architectural goal.
+exists, it runs `pnpm install --frozen-lockfile` and then `pnpm test`. The test
+runner is Vitest (`pnpm test` runs `vitest run`, configured in `vitest.config.mts`);
+unit tests live in `tests/unit/` as `*.test.ts`. Run one file with
+`pnpm exec vitest run tests/unit/money.test.ts`.
+Playwright coverage for sign-in and recording a sale is an architectural goal.
 
 The security workflow runs Trivy for fixable HIGH/CRITICAL vulnerabilities and
 Gitleaks over git history on pushes to `main`/`dev` and weekly.
@@ -55,6 +55,16 @@ Gitleaks over git history on pushes to `main`/`dev` and weekly.
 - Deployment is manual on the Pi: pull, install, build, then restart the service.
   Migrations run before startup. A failed build must not restart the old service.
   `GET /api/health` should return 200 only when the database can be read.
+
+## Project structure
+
+- Keep the file tree clean and simple. The layout, placement rules, and audit
+  steps live in `.github/skills/project-structure/SKILL.md`; read it before adding,
+  moving, or deleting files.
+- Use the `structure-keeper` agent (`.github/agents/structure-keeper.agent.md`) to
+  review or tidy the repository.
+- Put unit tests in `tests/unit/` and Playwright tests in `tests/e2e/`, remove `.gitkeep` once a folder has content,
+  and keep build output, coverage, env files, and database files out of git.
 
 ## Data and interaction invariants
 

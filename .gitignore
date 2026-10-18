@@ -12,3 +12,15 @@ node_modules/
 # Ignore build output
 dist/
 build/
+
+# Next.js build output and generated files
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Test coverage reports
+coverage/
+
+# OS files
+.DS_Store
