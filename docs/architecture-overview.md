@@ -275,6 +275,7 @@ Sell screen rules:
 - **Validation:** the browser checks forms for quick feedback. The backend validates again and is the final check.
 - **Components:** shadcn/ui components styled with Tailwind CSS. Custom components only where shadcn/ui has none.
 - **Deploy:** built and served with the backend as one app. See section 6, Deploy.
+- **Layout:** `app/` holds routes and `/api` handlers, `components/` shared UI, `lib/` shared logic, `lib/db/` schema and migrations, `docs/` documentation, `tests/unit/` Vitest tests, `tests/e2e/` Playwright tests. The full rules are in `.github/skills/project-structure/SKILL.md`.
 
 ### 18. Cross-cutting concerns
 
